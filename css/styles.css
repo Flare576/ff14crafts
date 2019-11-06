@@ -6,9 +6,17 @@ body {
   width: 100%;
 }
 
+#size {
+  padding-left: 10px;
+}
+
 .craftImage {
   height: 25px;
   width: 25px;
+}
+
+.stack-size {
+  font-size: .8em;
 }
 
 .recipe {
@@ -17,7 +25,21 @@ body {
   align-items: center;
 }
 
+.level {
+  font-weight: bold;
+  padding-right: 5px;
+  font-size: 1.1em;
+}
+
+.created {
+  padding-right: 2px;
+}
+
 .ingredient {
+  font-style: italic;
+}
+
+.ingredient:not(:nth-child(4)) {
   padding: 0 2px;
 }
 

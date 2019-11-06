@@ -7,7 +7,7 @@
   <title>Eorzea Recipe Helper</title>
   <meta name="description" content="Should you save those materials?">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <link rel="stylesheet" href="css/styles.css?v=1.2">
+  <link rel="stylesheet" href="css/styles.css?v=1.3">
 
 </head>
 <body>
@@ -23,11 +23,10 @@
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.4.3/dist/js/tabulator.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
   <script src="js/main.js"></script>
-  <input type="text" id="name" /> <button onclick="lookup()">Click Me</button>
+  <input type="text" id="name" /> <button onclick="lookup()">Search</button><span id='size'></span>
   <div id="output">
     <div id="item-table"></div>
   </div>
   <div>TODO: pull data from repo zipped</div>
-  <div>TODO: email the folks at https://github.com/xivapi/ffxiv-datamining to let 'em know I'm using their data</div>
 </body>
 </html>

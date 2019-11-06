@@ -13,7 +13,9 @@ let items, recipes, fuse;
 
 const lookup = function () {
   const name = gid('name').value;
-  generateTable(fuse.search(name));
+  const results = fuse.search(name);
+  gid('size').innerHTML = `Found ${results.length} Results`;
+  generateTable(results);
 }
 
 const shopCheck = function (row) {
@@ -32,7 +34,10 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
     let output = '';
     data.forEach(rid => {
       const r = recipes.find(r=>rid === r.id);
-      output += `<div class="recipe"><img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />l${r.level} (`;
+      output += `<div class="recipe">
+        <img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />
+        <span class='level'>${r.level}</span>
+        <span class="created">${r.name}</span> (`;
 
       Object.keys(r.needs).forEach(n=>{
         const i = items.find(i=>i.id === n);
@@ -44,6 +49,12 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
   }
 }
 
+const nameFormatter = function (cell) {
+  const data = cell.getValue();
+  const row = cell.getRow().getData();
+  return `${data} <span class="stack-size">(${row.stack})</span>`;
+}
+
 const generateTable = function (matched) {
   var table = new Tabulator('#item-table', {
     rowFormatter:shopCheck,
@@ -51,11 +62,10 @@ const generateTable = function (matched) {
     layout:'fitData', //fit columns to width of table (optional)
     columns:[ //Define Table Columns
       {title:'', field:'icon', formatter:'image', formatterParams: {height:'40px', width:'40px'}},
-      {title:'Name', field:'name', width:150, cssClass:'testing'},
+      {title:'Name', field:'name', width:150, cssClass:'testing', formatter:nameFormatter},
       // {title:'Desc', field:'desc'},
       {title:'Can Buy', field:'shop', align:'center', formatter:'tickCross'},
       {title:'Price', field:'price'},
-      {title:'Stack', field:'stack'},
       {
         title:'Recipes',
         field:'recipes',
