@@ -14,24 +14,59 @@ let items, recipes, fuse;
 const lookup = function () {
   const name = gid('name').value;
   generateTable(fuse.search(name));
+}
 
-  console.log(`looking up ${name}`, matching);
+const shopCheck = function (row) {
+  if(row.getData().shop) {
+    row.getElement().style.color = 'green';
+  }
+}
+
+const recipeFormatter = function (cell, formatterParams, onRendered) {
+  const data = cell.getValue();
+  const row = cell.getRow().getData();
+  cell.getElement().style.wordWrap = 'normal';
+  if (data.length > 10) {
+    return "More than 10 Recipes...";
+  } else {
+    let output = '';
+    data.forEach(rid => {
+      const r = recipes.find(r=>rid === r.id);
+      const qty = r.needs[row.id];
+      output += `<div>${r.name} (${qty})</div>`
+      // output += output ? ', ' : '';
+      // output += `${r.name} (${qty})`;
+    });
+    return output;
+  }
 }
 
 const generateTable = function (matched) {
   var table = new Tabulator("#item-table", {
-    height:205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+    rowFormatter:shopCheck,
     data:matched, //assign data to table
-    layout:"fitColumns", //fit columns to width of table (optional)
+    layout:"fitData", //fit columns to width of table (optional)
     columns:[ //Define Table Columns
       {title:"Name", field:"name", width:150},
-      {title:"Desc", field:"desc"},
+      // {title:"Desc", field:"desc"},
       {title:"Shop", field:"shop"},
-      {title:"Stack", field:"stac"},
-      {title:"Recipes", field:"dob"},
+      {title:"Price", field:"price"},
+      {title:"Stack", field:"stack"},
+      {
+        width: 500,
+        title:"Recipes",
+        field:"recipes",
+        formatter: recipeFormatter,
+        variableHeight: true
+      },
     ],
-    rowClick:function(e, row){ //trigger an alert message when the row is clicked
-      alert("Row " + row.getData().id + " Clicked!!!!");
-    },
   });
 }
+
+setTimeout(() => {
+  $("#name").on('keyup', function (e) {
+    if (e.keyCode === 13) {
+      lookup();
+    }
+  });
+}, 100);
