@@ -56,13 +56,15 @@ const nameFormatter = function (cell) {
 }
 
 const generateTable = function (matched) {
+  const height = window.innerHeight - 40;
   var table = new Tabulator('#item-table', {
+    height,
     rowFormatter:shopCheck,
     data:matched, //assign data to table
     layout:'fitData', //fit columns to width of table (optional)
     columns:[ //Define Table Columns
       {title:'', field:'icon', formatter:'image', formatterParams: {height:'40px', width:'40px'}},
-      {title:'Name', field:'name', width:150, cssClass:'testing', formatter:nameFormatter},
+      {title:'Name (stack)', field:'name', width:150, cssClass:'testing', formatter:nameFormatter},
       // {title:'Desc', field:'desc'},
       {title:'Can Buy', field:'shop', align:'center', formatter:'tickCross'},
       {title:'Price', field:'price'},
@@ -83,3 +85,5 @@ setTimeout(() => {
     }
   });
 }, 100);
+
+window.onresize = lookup;
