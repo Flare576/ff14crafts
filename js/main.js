@@ -27,35 +27,38 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
   const row = cell.getRow().getData();
   cell.getElement().style.wordWrap = 'normal';
   if (data.length > 10) {
-    return "More than 10 Recipes...";
+    return `Used in ${data.length} recipes.`;
   } else {
     let output = '';
     data.forEach(rid => {
       const r = recipes.find(r=>rid === r.id);
-      const qty = r.needs[row.id];
-      output += `<div>[${r.craftType}] ${r.name} (${qty})</div>`
-      // output += output ? ', ' : '';
-      // output += `${r.name} (${qty})`;
+      output += `<div class="recipe"><img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />l${r.level} (`;
+
+      Object.keys(r.needs).forEach(n=>{
+        const i = items.find(i=>i.id === n);
+        output += `<span class=ingredient>${i.name} [${r.needs[n]}]</span>`;
+      });
+      output += ')</div>';
     });
     return output;
   }
 }
 
 const generateTable = function (matched) {
-  var table = new Tabulator("#item-table", {
+  var table = new Tabulator('#item-table', {
     rowFormatter:shopCheck,
     data:matched, //assign data to table
-    layout:"fitData", //fit columns to width of table (optional)
+    layout:'fitData', //fit columns to width of table (optional)
     columns:[ //Define Table Columns
-      {title:"Name", field:"name", width:150},
-      // {title:"Desc", field:"desc"},
-      {title:"Shop", field:"shop"},
-      {title:"Price", field:"price"},
-      {title:"Stack", field:"stack"},
+      {title:'', field:'icon', formatter:'image', formatterParams: {height:'40px', width:'40px'}},
+      {title:'Name', field:'name', width:150, cssClass:'testing'},
+      // {title:'Desc', field:'desc'},
+      {title:'Can Buy', field:'shop', align:'center', formatter:'tickCross'},
+      {title:'Price', field:'price'},
+      {title:'Stack', field:'stack'},
       {
-        width: 500,
-        title:"Recipes",
-        field:"recipes",
+        title:'Recipes',
+        field:'recipes',
         formatter: recipeFormatter,
         variableHeight: true
       },
@@ -64,7 +67,7 @@ const generateTable = function (matched) {
 }
 
 setTimeout(() => {
-  $("#name").on('keyup', function (e) {
+  $('#name').on('keyup', function (e) {
     if (e.keyCode === 13) {
       lookup();
     }

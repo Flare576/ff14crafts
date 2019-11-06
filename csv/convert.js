@@ -8,6 +8,16 @@ const argv = require('yargs')
 const Papa = require('papaparse');
 const fs = require('fs');
 let items, recipes, shop, info, info_items;
+const craftIcon = [
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/carpenter.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/blacksmith.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/armorer.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/goldsmith.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/leatherworker.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/weaver.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/alchemist.png',
+  'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/culinarian.png',
+];
 const craftType = [
   'Woodworking',
   'Smithing',
@@ -35,6 +45,7 @@ const craftType = [
         qty: r['Amount{Result}'],
         level: r.RecipeLevelTable,
         craftType: craftType[r.CraftType],
+        craftIcon: craftIcon[r.CraftType],
         needs,
       };
     });
@@ -58,8 +69,8 @@ function cross (r) {
         info_items[pid] = {
           id: pid,
           name: i.Name,
+          icon: pic(i.Icon),
           desc: clean(i.Description),
-          icon: i.Icon,
           level: i['Level{Item}'],
           rarity: i.Rarity,
           stack: i.StackSize,
@@ -84,6 +95,14 @@ function clean (s) {
     s = s.substring(0, start) + s.substring(end+1);
   }
   return s;
+}
+// https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/alchemist.png
+function pic (id) {
+  while (id.length < 6) {
+    id = `0${id}`;
+  }
+  const folder = `${id.substr(0,3)}000`;
+  return `https://xivapi.com/i/${folder}/${id}.png`;
 }
 
 
