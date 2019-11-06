@@ -3,8 +3,8 @@ function gid(s) {return document.getElementById(s);}
 let items, recipes, fuse;
 
 (async () => {
-  items = await (await fetch('csv/items.json')).json();
-  recipes = await (await fetch('csv/recipes.json')).json();
+  items = await (await fetch('csv/items.json?v=1')).json();
+  recipes = await (await fetch('csv/recipes.json?v=1')).json();
 
   items = items.filter(i=>i);
   recipes = recipes.filter(r=>r);
