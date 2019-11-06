@@ -30,7 +30,7 @@ const craftType = [
     .map(r=>{
       const needs = cross(r);
       return {
-        id: r.id,
+        id: r['#'],
         name: items.find(i=>r['Item{Result}']===i['#']).Name,
         qty: r['Amount{Result}'],
         level: r.RecipeLevelTable,
@@ -52,16 +52,19 @@ function cross (r) {
     const pid = r[`Item{Ingredient}[${x}]`];
     if (pid && pid !== '0') {
       const i = items.find(i=>i['#']===pid);
+      const inShop = !!shop.find(s=>s.key==pid && s.sold > 0);
       needs[pid] = r[`Amount{Ingredient}[${x}]`];
       if (!info_items[pid]) {
         info_items[pid] = {
+          id: pid,
           name: i.Name,
-          desc: i.Description,
+          desc: clean(i.Description),
           icon: i.Icon,
           level: i['Level{Item}'],
           rarity: i.Rarity,
           stack: i.StackSize,
-          shop: !!shop.find(s=>s.key==pid && s.sold > 0),
+          shop: inShop,
+          price: inShop ? `Buy: ${i['Price{Mid}']}` : `Sell: ${i['Price{Low}']}`,
           recipes:[],
         };
       }
@@ -70,5 +73,18 @@ function cross (r) {
   }
   return needs;
 };
+
+function clean (s) {
+  while (true) {
+    const start = s.indexOf('<');
+    const end = s.indexOf('>');
+    if (start === -1 || end === -1) {
+      break;
+    }
+    s = s.substring(0, start) + s.substring(end+1);
+  }
+  return s;
+}
+
 
 // vim: ft=javascript
