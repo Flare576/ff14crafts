@@ -33,7 +33,7 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
     data.forEach(rid => {
       const r = recipes.find(r=>rid === r.id);
       const qty = r.needs[row.id];
-      output += `<div>${r.name} (${qty})</div>`
+      output += `<div>[${r.craftType}] ${r.name} (${qty})</div>`
       // output += output ? ', ' : '';
       // output += `${r.name} (${qty})`;
     });
