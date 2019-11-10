@@ -28,7 +28,7 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
   const data = cell.getValue();
   const row = cell.getRow().getData();
   cell.getElement().style.wordWrap = 'normal';
-  if (data.length > 10) {
+  if (data.length > 10 && !gid("showAll").checked) {
     return `Used in ${data.length} recipes.`;
   } else {
     let output = '';
