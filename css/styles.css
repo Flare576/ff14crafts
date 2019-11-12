@@ -38,3 +38,17 @@
 .ingredient:not(:last-child):after {
   content: '; ';
 }
+
+#controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#controls > div {
+  flex-grow: 0;
+}
+
+#donate {
+  margin-left: auto;
+}
