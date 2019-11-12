@@ -7,6 +7,7 @@ const argv = require('yargs')
 .argv;
 const Papa = require('papaparse');
 const fs = require('fs');
+const fetch = require('node-fetch');
 let items, recipes, shop, info, info_items;
 const craftIcon = [
   'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/carpenter.png',
@@ -30,14 +31,17 @@ const craftType = [
 ];
 
 (async () => {
-  // Can't just grab remote files; need to remove 1st and 3rd (or more) rows
-  items = await pp('orig_Item.csv');
-  recipes = await pp('orig_Recipe.csv');
-  shop = await pp('orig_GilShopInfo.csv');
+  items = await pp('Item.csv');
+  recipes = (await pp('Recipe.csv'))
+    .filter(r=>r['Item{Result}'] && r['Item{Result}'] !== '0');
+  shop = await pp('GilShopInfo.csv');
   info_items = [];
   info = recipes
-    .filter(r=>r['Item{Result}'] && r['Item{Result}'] !== '0')
-    .map(r=>{
+    .map((r,i) => {
+      process.stdout.clearLine();
+      process.stdout.cursorTo(0);
+      process.stdout.write(`Processing ${pad(i)} of ${recipes.length}`);
+
       const needs = cross(r);
       return {
         id: r['#'],
@@ -49,21 +53,48 @@ const craftType = [
         needs,
       };
     });
+  console.log('\nWriting table data...');
 
   await fs.writeFileSync('recipes.json', JSON.stringify(info));
   await fs.writeFileSync('items.json', JSON.stringify(info_items));
 })();
 
 async function pp (f) {
-  return new Promise(r => Papa.parse((fs.createReadStream(f)), {header:true,complete:d=>r(d.data)}));
+  console.log(`Downloading ${f}`);
+  const path = `https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/${f}`;
+  const result = await fetch(path);
+  const content = await result.text();
+  const lines = content.split('\n');
+  // first line is numeric headers
+  // second line is named headers
+  // third  line is data types
+  // fourth line is ... defaults maybe?
+  // blank header names suck
+  let headers = lines[1];
+  let instance = 1;
+  while (true) {
+    const idx = headers.indexOf(',,');
+    if (idx < 0) break;
+    headers = headers.replace(',,',`,flare${instance},`);
+    instance++;
+  }
+  if (headers.charAt(headers.length-1) === ',') {
+    headers += `flare${instance}`;
+  }
+
+  const dataWithHeaders = lines.slice(4);
+  dataWithHeaders.unshift(headers);
+
+  return Papa.parse(dataWithHeaders.join('\n'), {header:true}).data;
 }
+
 function cross (r) {
   let needs = {};
   for(let x=0;x<9;x++) {
     const pid = r[`Item{Ingredient}[${x}]`];
     if (pid && pid !== '0') {
       const i = items.find(i=>i['#']===pid);
-      const inShop = !!shop.find(s=>s.key==pid && s.sold > 0);
+      const inShop = !!shop.find(s=>s['#']==pid && s.flare1 > 0);
       needs[pid] = r[`Amount{Ingredient}[${x}]`];
       if (!info_items[pid]) {
         info_items[pid] = {
@@ -98,12 +129,18 @@ function clean (s) {
 }
 // https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/alchemist.png
 function pic (id) {
-  while (id.length < 6) {
-    id = `0${id}`;
-  }
+  id = pad(id)
   const folder = `${id.substr(0,3)}000`;
   return `https://xivapi.com/i/${folder}/${id}.png`;
 }
+
+function pad (id) {
+  while (id.length < 6) {
+    id = `0${id}`;
+  }
+  return id;
+}
+
 
 
 // vim: ft=javascript
