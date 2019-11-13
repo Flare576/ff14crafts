@@ -11,6 +11,11 @@ let items, recipes, fuse;
   fuse = new Fuse(items, {keys: ['name'], threshold: 0.2});
 })();
 
+const link = function (s) {
+  const urlString = s.replace(/ /g, '_');
+  return `<a target="_blank" href="https://ffxiv.gamerescape.com/wiki/${urlString}">${s}</a>`;
+}
+
 const lookup = function () {
   const name = gid('name').value;
   let results = fuse.search(name);
@@ -40,11 +45,11 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
       output += `<div class="recipe">
         <img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />
         <span class='level'>${r.level}</span>
-        <span class="created">${r.name}</span> (`;
+        <span class="created">${link(r.name)}</span> (`;
 
       Object.keys(r.needs).forEach(n=>{
         const i = items.find(i=>i.id === n);
-        output += `<span class=ingredient>${i.name} [${r.needs[n]}]</span>`;
+        output += `<span class=ingredient>${link(i.name)} [${r.needs[n]}]</span>`;
       });
       output += ')</div>';
     });
@@ -59,7 +64,7 @@ const leveFormatter = function (cell) {
       output += `<div class="leve">
         <img class='craftImage' src="${leve.craftIcon}" alt="${leve.craftType}" />
         <span class='level'>${leve.level}</span>
-        <span class="created">${leve.name}</span>
+        <span class="created">${link(leve.name)}</span>
         <span class="qty">(qty: ${leve.qty})</span>
       </div>`;
   });
@@ -69,7 +74,7 @@ const leveFormatter = function (cell) {
 const nameFormatter = function (cell) {
   const data = cell.getValue();
   const row = cell.getRow().getData();
-  return `${data} <span class="stack-size">(${row.stack})</span>`;
+  return `${link(data)} <span class="stack-size">(${row.stack})</span>`;
 }
 
 const generateTable = function (matched) {
@@ -77,6 +82,7 @@ const generateTable = function (matched) {
   var table = new Tabulator('#item-table', {
     height,
     rowFormatter:shopCheck,
+    selectable: false,
     data:matched, //assign data to table
     layout:'fitData', //fit columns to width of table (optional)
     columns:[ //Define Table Columns

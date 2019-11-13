@@ -2,6 +2,10 @@
   padding-left: 10px;
 }
 
+a:visited {
+  color: #0000ee;
+}
+
 .craftImage {
   height: 25px;
   width: 25px;
