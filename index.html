@@ -24,11 +24,22 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
   <script src="js/main.js?v=1.4"></script>
   <div id="content">
-    <div id="controls">
-      <input type="text" id="name" />
-      <button onclick="lookup()">Search</button>
+    <div id="heading">
+      <div id="controls">
+        <input type="text" id="name" />
+        <button onclick="lookup()">Search</button>
+        <div id="options">
+          <div id='showAllDiv'>
+            <input onclick="lookup()" type="checkbox" id="showAll" />
+            <label for="showAll">Show Recipes over 10</label>
+          </div>
+          <div id='leveOnlyDiv'>
+            <input onclick="lookup()" type="checkbox" id="leveOnly" />
+            <label for="leveOnly">Include Leve-only items</label>
+          </div>
+        </div>
+      </div>
       <div id='size'></div>
-      <div id='showAllDiv'><input onclick="lookup()" type="checkbox" id="showAll" /> <label for="showAll">Show Recipes over 10</label></div>
       <div id="donate">
         <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L7M8VQ6Z7Z7N2&item_name=Eorzea+Recipe+Helper&currency_code=USD&source=url">
           <img src="https://img.shields.io/badge/Donate-PayPal-green.svg"/>
@@ -36,6 +47,9 @@
       </div>
     </div>
     <div id="item-table"></div>
+    <div id="credits">
+      All data sourced from <a href="https://github.com/xivapi/ffxiv-datamining">XIVAPI - Data Mining</a>
+    </div>
   </div>
 </body>
 </html>

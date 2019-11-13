@@ -13,7 +13,10 @@ let items, recipes, fuse;
 
 const lookup = function () {
   const name = gid('name').value;
-  const results = fuse.search(name);
+  let results = fuse.search(name);
+  if (!gid('leveOnly').checked) {
+    results = results.filter(r=>r.recipes.length);
+  }
   gid('size').innerHTML = `Found ${results.length} Results`;
   generateTable(results);
 }
@@ -49,6 +52,20 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
   }
 }
 
+const leveFormatter = function (cell) {
+  const data = cell.getValue();
+  let output = '';
+  data.forEach(leve => {
+      output += `<div class="leve">
+        <img class='craftImage' src="${leve.craftIcon}" alt="${leve.craftType}" />
+        <span class='level'>${leve.level}</span>
+        <span class="created">${leve.name}</span>
+        <span class="qty">(qty: ${leve.qty})</span>
+      </div>`;
+  });
+  return output;
+}
+
 const nameFormatter = function (cell) {
   const data = cell.getValue();
   const row = cell.getRow().getData();
@@ -56,7 +73,7 @@ const nameFormatter = function (cell) {
 }
 
 const generateTable = function (matched) {
-  const height = window.innerHeight - 40;
+  const height = window.innerHeight - gid('heading').offsetHeight - gid('credits').offsetHeight - 18;
   var table = new Tabulator('#item-table', {
     height,
     rowFormatter:shopCheck,
@@ -68,6 +85,7 @@ const generateTable = function (matched) {
       // {title:'Desc', field:'desc'},
       {title:'Can Buy', field:'shop', align:'center', formatter:'tickCross'},
       {title:'Price', field:'price'},
+      {title:'Leves', field:'leves', align:'center', formatter:leveFormatter, variableHeight: true},
       {
         title:'Recipes',
         field:'recipes',
