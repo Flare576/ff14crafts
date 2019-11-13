@@ -3,12 +3,20 @@ function gid(s) {return document.getElementById(s);}
 let items, recipes, fuse;
 
 (async () => {
-  items = await (await fetch('csv/items.json?v=2')).json();
-  recipes = await (await fetch('csv/recipes.json?v=2')).json();
+  items = await (await fetch('csv/items.json?v=3')).json();
+  recipes = await (await fetch('csv/recipes.json?v=3')).json();
 
   items = items.filter(i=>i);
   recipes = recipes.filter(r=>r);
   fuse = new Fuse(items, {keys: ['name'], threshold: 0.2});
+
+  const data = new URLSearchParams(window.location.search);
+  gid('name').value = data.get('name') || '';
+  gid('showAll').checked = data.get('showAll');
+  gid('leveOnly').checked = data.get('leveOnly');
+  if (gid('name').value) {
+    lookup();
+  }
 })();
 
 const link = function (s) {
