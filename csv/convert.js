@@ -8,7 +8,7 @@ const argv = require('yargs')
 const Papa = require('papaparse');
 const fs = require('fs');
 const fetch = require('node-fetch');
-let items, recipes, shop, info, info_items;
+let items, recipes, shop, info, infoItems, leveItems;
 const craftIcon = [
   'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/carpenter.png',
   'https://raw.githubusercontent.com/xivapi/classjob-icons/master/icons/blacksmith.png',
@@ -31,16 +31,18 @@ const craftType = [
 ];
 
 (async () => {
+  infoItems = [];
+  leveItems = [];
   items = await pp('Item.csv');
   recipes = (await pp('Recipe.csv'))
     .filter(r=>r['Item{Result}'] && r['Item{Result}'] !== '0');
-  shop = await pp('GilShopInfo.csv');
-  info_items = [];
+  shop = await pp('GilShopInfo.csv', '#,inShop');
+  await prepLeves();
   info = recipes
     .map((r,i) => {
       process.stdout.clearLine();
       process.stdout.cursorTo(0);
-      process.stdout.write(`Processing ${pad(i)} of ${recipes.length}`);
+      process.stdout.write(`Processing Recipe ${i+1} of ${recipes.length}`);
 
       const needs = cross(r);
       return {
@@ -53,13 +55,50 @@ const craftType = [
         needs,
       };
     });
-  console.log('\nWriting table data...');
+  console.log('');
+
+  console.log('Writing table data...');
 
   await fs.writeFileSync('recipes.json', JSON.stringify(info));
-  await fs.writeFileSync('items.json', JSON.stringify(info_items));
+  await fs.writeFileSync('items.json', JSON.stringify(infoItems));
 })();
 
-async function pp (f) {
+async function prepLeves() {
+  const allLeves = await pp('Leve.csv');
+  const leveTypes = await pp('LeveAssignmentType.csv');
+  const craftLeves = await pp('CraftLeve.csv');
+  craftLeves.forEach((l,i) => {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(`Processing Leve ${i+1} of ${craftLeves.length}`);
+    for(let x=0;x<4;x++) {
+      const iId = l[`Item[${x}]`];
+      if (!iId || iId === '0') {
+        continue;
+      }
+      let item = getOrAddItem(iId);
+      // Non-stacking objects are listed multiple times
+      const existing = item.leves.find(il=>il.id===l.Leve);
+      if (existing) {
+        existing.qty++;
+      } else {
+        const leve = allLeves.find(al=>al['#']===l.Leve);
+        const leveType = leveTypes.find(lt=>lt['#']===leve.LeveAssignmentType);
+        item.leves.push({
+          id: l.Leve,
+          level: leve.ClassJobLevel,
+          craftType: leveType.Name,
+          craftIcon: pic(leveType.Icon),
+          qty: l[`ItemCount[${x}]`],
+          name: leve.Name,
+        });
+      }
+    }
+  });
+  console.log('');
+};
+
+async function pp (f, headers) {
   console.log(`Downloading ${f}`);
   const path = `https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/${f}`;
   const result = await fetch(path);
@@ -69,18 +108,7 @@ async function pp (f) {
   // second line is named headers
   // third  line is data types
   // fourth line is ... defaults maybe?
-  // blank header names suck
-  let headers = lines[1];
-  let instance = 1;
-  while (true) {
-    const idx = headers.indexOf(',,');
-    if (idx < 0) break;
-    headers = headers.replace(',,',`,flare${instance},`);
-    instance++;
-  }
-  if (headers.charAt(headers.length-1) === ',') {
-    headers += `flare${instance}`;
-  }
+  headers = headers || lines[1];
 
   const dataWithHeaders = lines.slice(4);
   dataWithHeaders.unshift(headers);
@@ -93,28 +121,40 @@ function cross (r) {
   for(let x=0;x<9;x++) {
     const pid = r[`Item{Ingredient}[${x}]`];
     if (pid && pid !== '0') {
-      const i = items.find(i=>i['#']===pid);
-      const inShop = !!shop.find(s=>s['#']==pid && s.flare1 > 0);
+      item = getOrAddItem(pid);
       needs[pid] = r[`Amount{Ingredient}[${x}]`];
-      if (!info_items[pid]) {
-        info_items[pid] = {
-          id: pid,
-          name: i.Name,
-          icon: pic(i.Icon),
-          desc: clean(i.Description),
-          level: i['Level{Item}'],
-          rarity: i.Rarity,
-          stack: i.StackSize,
-          shop: inShop,
-          price: inShop ? `Buy: ${i['Price{Mid}']}` : `Sell: ${i['Price{Low}']}`,
-          recipes:[],
-        };
-      }
-      info_items[pid].recipes.push(r['#']);
+      item.recipes.push(r['#']);
     }
   }
   return needs;
 };
+
+function getOrAddItem (pid) {
+  let item = infoItems.find(i=>i.id === pid);
+  if (!item) {
+    const i = items.find(i=>i['#']===pid);
+    if(!i) {
+      console.log('wtf', pid);
+    }
+    const inShop = !!shop.find(s=>s['#']==pid && s.inShop > 0);
+    const inLeves = !!leveItems.find(i=>i.id==pid);
+    item = {
+      id: pid,
+      name: i.Name,
+      icon: pic(i.Icon),
+      desc: clean(i.Description),
+      level: i['Level{Item}'],
+      rarity: i.Rarity,
+      stack: i.StackSize,
+      shop: inShop,
+      price: inShop ? `Buy: ${i['Price{Mid}']}` : `Sell: ${i['Price{Low}']}`,
+      leves: [],
+      recipes:[],
+    };
+    infoItems.push(item);
+  }
+  return item;
+}
 
 function clean (s) {
   while (true) {
