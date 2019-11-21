@@ -47,6 +47,7 @@ const craftType = [
       const needs = cross(r);
       return {
         id: r['#'],
+        itemId: r['Item{Result}'],
         name: items.find(i=>r['Item{Result}']===i['#']).Name,
         qty: r['Amount{Result}'],
         level: r.RecipeLevelTable,
