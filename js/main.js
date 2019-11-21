@@ -23,7 +23,8 @@ const link = function (s, id) {
   if (id) {
     return `<a target="_blank" href="https://www.garlandtools.org/db/#item/${id}">${s}</a>`;
   } else {
-    return `<a target="_blank" href="https://www.garlandtools.org/db/#item/${id}">${s}</a>`;
+    const urlString = s.replace(/ /g, '_');
+    return `<a target="_blank" href="https://ffxiv.gamerescape.com/wiki/${urlString}">${s}</a>`;
   }
 }
 
