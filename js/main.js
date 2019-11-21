@@ -57,7 +57,7 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
       output += `<div class="recipe">
         <img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />
         <span class='level'>${r.level}</span>
-        <span class="created">${link(r.name, r.id)}</span> (`;
+        <span class="created">${link(r.name, r.itemId)}</span> (`;
 
       Object.keys(r.needs).forEach(n=>{
         const i = items.find(i=>i.id === n);
