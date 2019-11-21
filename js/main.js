@@ -19,9 +19,13 @@ let items, recipes, fuse;
   }
 })();
 
-const link = function (s) {
-  const urlString = s.replace(/ /g, '_');
-  return `<a target="_blank" href="https://ffxiv.gamerescape.com/wiki/${urlString}">${s}</a>`;
+const link = function (s, id) {
+  if (id) {
+    return `<a target="_blank" href="https://www.garlandtools.org/db/#item/${id}">${s}</a>`;
+  } else {
+    const urlString = s.replace(/ /g, '_');
+    return `<a target="_blank" href="https://ffxiv.gamerescape.com/wiki/${urlString}">${s}</a>`;
+  }
 }
 
 const lookup = function () {
@@ -53,11 +57,11 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
       output += `<div class="recipe">
         <img class='craftImage' src="${r.craftIcon}" alt="${r.craftType}" />
         <span class='level'>${r.level}</span>
-        <span class="created">${link(r.name)}</span> (`;
+        <span class="created">${link(r.name, r.id)}</span> (`;
 
       Object.keys(r.needs).forEach(n=>{
         const i = items.find(i=>i.id === n);
-        output += `<span class=ingredient>${link(i.name)} [${r.needs[n]}]</span>`;
+        output += `<span class=ingredient>${link(i.name, i.id)} [${r.needs[n]}]</span>`;
       });
       output += ')</div>';
     });
@@ -82,7 +86,7 @@ const leveFormatter = function (cell) {
 const nameFormatter = function (cell) {
   const data = cell.getValue();
   const row = cell.getRow().getData();
-  return `${link(data)} <span class="stack-size">(${row.stack})</span>`;
+  return `${link(data, row.id)} <span class="stack-size">(${row.stack})</span>`;
 }
 
 const generateTable = function (matched) {
