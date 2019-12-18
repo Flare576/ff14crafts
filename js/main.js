@@ -81,7 +81,7 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
       const r = recipes.find(r=>rid === r.id);
       const theLink = link({s: r.name, id: r.itemId, type:'item', includeSearch: true});
       const craftUrl = `https://ffxivteamcraft.com/simulator/${r.itemId}`;
-      const planUrl = `https://ffxivcrafting.com/item/${r.itemId}`;
+      const planUrl = `https://ffxivcrafting.com/crafting/item/${r.itemId}?self_sufficient=1`;
       output += `<div class="recipe">
         <img class="recipeIcon" src="${r.craftIcon}" alt="${r.craftType}" />
         <div class="linkIcon">
