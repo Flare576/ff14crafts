@@ -16,10 +16,6 @@ a:visited {
   width: 25px;
 }
 
-.stack-size {
-  font-size: .8em;
-}
-
 .recipe, .leve {
   height: 25px;
   display: flex;
@@ -42,15 +38,12 @@ a:visited {
 }
 
 .ingredient {
-  font-style: italic;
+  display: flex;
+  align-items: center;
 }
 
-.ingredient:not(:nth-child(4)) {
-  padding: 0 2px;
-}
-
-.ingredient:not(:last-child):after {
-  content: '; ';
+.ingredientName {
+  margin-left: 2px;
 }
 
 #controls {
@@ -85,24 +78,19 @@ a:visited {
   font-size: 16px;
 }
 
-.searchLink {
-  margin-left: 1px;
-  color: blue;
-  text-decoration: underline;
-  cursor: pointer;
-  vertical-align: super;
-  font-size: smaller;
-}
 .linkIcon {
+  height: 20px;
+  width: 20px;
   display: inline-block;
   position: relative;
 }
 
-.linkIcon span {
+.hoverTip {
+  white-space: nowrap;
   display: none;
   position: absolute;
-  top: 0;
-  left: 32px;
+  top: 14px;
+  left: 8px;
   background: #FFF;
   color: #000;
   border-radius: 10px;
@@ -111,13 +99,13 @@ a:visited {
   z-index: 10;
 }
 
-.linkIcon:hover span {
-  display: block;
+.tabulator-row:last-of-type .hoverTip {
+  top: revert;
+  bottom: 20px;
 }
 
-.filterLink {
-  display: inline-block;
-  margin-top: 10px;
+.linkIcon:hover > .hoverTip {
+  display: block;
 }
 
 #options {
@@ -126,4 +114,15 @@ a:visited {
 
 #credits {
   text-align: center;
+}
+
+div.tabulator-cell.nameCell,
+div.tabulator-col.tabulator-sortable.nameCell,
+div.tabulator-cell.recipeCell
+{
+   overflow: visible; 
+}
+
+div.tabulator-cell.nameCell {
+  white-space: normal;
 }
