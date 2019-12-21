@@ -45,10 +45,12 @@ const craftType = [
       process.stdout.write(`Processing Recipe ${i+1} of ${recipes.length}`);
 
       const needs = cross(r);
+      const outItem = items.find(i=>r['Item{Result}']===i['#']);
       return {
         id: r['#'],
         itemId: r['Item{Result}'],
-        name: items.find(i=>r['Item{Result}']===i['#']).Name,
+        recipeIcon: pic(outItem.Icon),
+        name: outItem.Name,
         qty: r['Amount{Result}'],
         level: r.RecipeLevelTable,
         craftType: craftType[r.CraftType],
