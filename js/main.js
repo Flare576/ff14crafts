@@ -28,7 +28,7 @@ const caasLinkUrl = 'https://ffxivcrafting.com/crafting/item/{id}?self_sufficien
 })();
 
 const searchLink = function (s) {
-  return `<a href="#" onclick="itemClick('${encodeURIComponent(s)}')">${s}</a>`;
+  return `<a href="#" onclick="itemClick('${s.replace(/'/g, '\\\'')}')">${s}</a>`;
 }
 
 const linkLeve = function (s, id) {
