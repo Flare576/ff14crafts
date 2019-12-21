@@ -28,7 +28,7 @@ const caasLinkUrl = 'https://ffxivcrafting.com/crafting/item/{id}?self_sufficien
 })();
 
 const searchLink = function (s) {
-  return `<a href="#" onclick="itemClick('${s}')">${s}</a>`;
+  return `<a href="#" onclick="itemClick('${encodeURIComponent(s)}')">${s}</a>`;
 }
 
 const linkLeve = function (s, id) {
@@ -156,8 +156,6 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
 }
 
 const showRecipe = function (element) {
-  console.log(element);
-  console.log(typeof element);
   let itemId;
   if (typeof element === "object") {
     itemId = $(element).attr('itemid');
