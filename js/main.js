@@ -38,6 +38,11 @@ const linkLeve = function (s, id) {
 
 const lookup = function (options = {}) {
   const name = gid('name').value;
+  // Direct Recipe lookup
+  const recipe = recipes.find(r=>r.name.toLowerCase().startsWith(name.toLowerCase()));
+  if (recipe) {
+    showRecipe(recipe.itemId);
+  }
   results = fuse.search(name);
   if (!gid('leveOnly').checked) {
     results = results.filter(r=>r.recipes.length);
@@ -103,13 +108,11 @@ const linkIcons = function (id) {
   return garlond + teamcraft + caas;
 }
 
-const linkIcon = function ({ id, link, src, alt, hover }) {
-  const wrapper = link 
-    ? `<a href="${link.replace('{id}', id)}" target="_blank">{img}</a>`
-    : '<span>{img}</span>';
+const linkIcon = function ({ id, link, src, alt }) {
   return `<div class="linkIcon">
-          ${wrapper.replace('{img}',`<img class="recipeIcon" src="${src}" alt="${alt}" />`)}
-          ${hover ? `<span class="hoverTip">${hover}</span>`: ''}
+            <a href="${link.replace('{id}', id)}" target="_blank">
+              <img class="siteIcon" src="${src}" alt="${alt}" />
+            </a>
         </div>`;
 }
 
@@ -138,14 +141,11 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
       const item = items.find(i=>i.id === r.itemId);
       const isIngredient = item && item.recipes.length;
       const name = isIngredient ? searchLink(r.name) : r.name;
-      const ingredients = linkIcon({
-        id: r.itemId,
-        src: r.craftIcon,
-        alt: r.craftType,
-        hover: listIngredients(r),
-      });
-      output += `<div class="recipe">
-        ${ingredients}
+      const craftIcon = `<span>
+        <img class="linkIcon" src="${r.craftIcon}" alt="${r.craftType}" />
+      </span>`;
+      output += `<div class="recipe" itemId="${r.itemId}" onmouseover="showRecipe(this)">
+        ${craftIcon}
         ${linkIcons(r.itemId)}
         <span class='level'>${r.level}</span>
         <span class='created'>${name}</span>
@@ -153,6 +153,40 @@ const recipeFormatter = function (cell, formatterParams, onRendered) {
     });
     return output;
   }
+}
+
+const showRecipe = function (element) {
+  console.log(element);
+  console.log(typeof element);
+  let itemId;
+  if (typeof element === "object") {
+    itemId = $(element).attr('itemid');
+    $('.recipeHover').removeClass('recipeHover');
+    $(element).addClass('recipeHover');
+  } else {
+    itemId = element;
+  }
+
+  const recipeList = recipes.filter(r=>r.itemId === itemId);
+  const recipeOutput = recipeList
+    .map(r => `<div class="recipeEntry">
+          <div class="recipeType">
+            <img class="linkIcon" src="${r.craftIcon}" alt="${r.craftType}" /> ${r.craftType}
+          </div>
+          ${listIngredients(r)}
+        </div>`
+    )
+    .join('');
+  gid('recipeDisplay').innerHTML = `<div class="recipeTitle">
+    <div class="recipeTitleLeft">
+      <img src="${recipeList[0].recipeIcon}" class="recipeIcon" />
+    </div>
+    <div class="recipeTitleRight">
+      <div class="recipeName">${recipeList[0].name}</div>
+      <div class="recipeIcons">${linkIcons(itemId)}</div>
+    </div>
+  </div>
+  <div class="recipes">${recipeOutput}</div>`;
 }
 
 const leveFormatter = function (cell) {
@@ -193,16 +227,20 @@ const nameFormatter = function (cell) {
 }
 
 const generateTable = function (matched) {
-  const height = window.innerHeight - gid('heading').offsetHeight - gid('credits').offsetHeight - 18;
+  const height = window.innerHeight 
+    - gid('heading').offsetHeight 
+    - gid('history').offsetHeight 
+    - gid('credits').offsetHeight 
+    - 18;
   var table = new Tabulator('#item-table', {
     height,
     rowFormatter:shopCheck,
     selectable: false,
     data:matched, //assign data to table
-    layout:'fitData', //fit columns to width of table (optional)
+    layout:'fitData',
     columns:[ //Define Table Columns
       {title:'', field:'icon', formatter:'image', formatterParams: {height:'40px', width:'40px'}},
-      {title:'Name (stack)', field:'name', width:150, cssClass:'nameCell', formatter:nameFormatter},
+      {title:'Name (stack)', field:'name', cssClass:'nameCell', formatter:nameFormatter},
       // {title:'Desc', field:'desc'},
       {title:'Can Buy', field:'shop', align:'center', formatter:'tickCross'},
       {title:'Price', field:'price'},
