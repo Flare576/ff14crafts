@@ -11,8 +11,8 @@ const caasLogoUrl = 'https://ffxivcrafting.com/img/favicon@2x.png';
 const caasLinkUrl = 'https://ffxivcrafting.com/crafting/item/{id}?self_sufficient=1';
 
 (async () => {
-  items = await (await fetch('csv/items.json?v=5')).json();
-  recipes = await (await fetch('csv/recipes.json?v=5')).json();
+  items = await (await fetch('csv/items.json?v=6')).json();
+  recipes = await (await fetch('csv/recipes.json?v=6')).json();
 
   items = items.filter(i=>i);
   recipes = recipes.filter(r=>r);
